@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - ".github/workflows/**"
+      - ".github/workflows/checkin.yml"
       - "requirements.txt"
       - "main.py"
   schedule:
