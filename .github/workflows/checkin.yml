@@ -2,7 +2,8 @@ name: Auto Checkin
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
     paths:
       - ".github/workflows/checkin.yml"
       - "requirements.txt"
