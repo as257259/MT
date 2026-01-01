@@ -87,7 +87,7 @@ class Preferences:
                     os.system('git config --local user.name "github-actions[bot]" >/dev/null 2>&1')
                     os.system('git config --local user.email "github-actions[bot]@users.noreply.github.com" >/dev/null 2>&1')
                     os.system('git commit -m "更新数据库文件" >/dev/null 2>&1')
-                    os.system('git push --quiet --force-with-lease >/dev/null 2>&1')
+                    os.system('git push --quiet --force-with-lease')
             except Exception as e:
                 print(f"Git操作失败: {e}")
 
