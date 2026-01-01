@@ -53,16 +53,13 @@ class Preferences:
     def items(self):
         return list(self.db.items())
 
-    def __contains__(self, key):
+    def contains(self, key):
         return key in self.db
 
     def close(self):
         if hasattr(self, 'db'):
             self.db.close()
         self.__class__._instance = None
-
-    def __del__(self):
-        self.close()
 
     def get_db_path(self):
         return self._db_path
