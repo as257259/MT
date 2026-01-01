@@ -16,7 +16,6 @@ MAX_RETRY = 3
 Retry = {}
 accounts_list = {}
 s_list = {}
-print(prefs.get("theme", "失败"))
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -176,8 +175,10 @@ for duo in ACCOUNTS.split(","):
     username = username.strip()
     password = password.strip()
     YiQianDao = prefs.get(username, "") == prefs.getTime()
-    if YiQianDao: print(username, "已签到", "跳过")
     if username and password and not YiQianDao:
         accounts_list[username] = password
+    else if YiQianDao:
+        print(username, "今日已签, 跳过签到")
+        s_list[username] = "今日已签，跳过签到";
 s.update([ip for ip in IPS.split("\n") if ip.strip()])
 start()
