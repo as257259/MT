@@ -13,14 +13,14 @@
 1. fork 或者上传此项目
 2. 在Actions菜单允许 `I understand my workflows, go ahead and enable them` 按钮
 3. 在 GitHub 仓库的 Settings → Secrets and variables → Actions 中添加以下环境变量
-   - 添加账号: 变量名`ACCOUNTS` 
+     - 添加账号: 变量名`ACCOUNTS` 
      ```
      //单账号格式:
      user:pass
      //多账号格式:
      user1:pass1,user2:pass2
      ```
-   - 添加代理: 变量名`IPS`  
+     - 添加代理: 变量名`IPS`  
      由于这是国外的网站无法签到所以需要用代理ip，输入格式`ip:端口`，多个代理需要换行输入  
    例如:  
      ```
