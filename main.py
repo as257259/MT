@@ -5,7 +5,6 @@ from preferences import prefs
 prefs.put("cs", prefs.getTime())
 IP_LIST = set()
 accounts_list = {}
-successful_proxies = []
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
@@ -53,6 +52,7 @@ def lo():
                 IP_LIST.add(ip)
     except Exception as e:
         pass
+    successful_proxies = []
     with ThreadPoolExecutor(max_workers=30) as executor:
         futures = [executor.submit(verify, proxy) for proxy in IP_LIST]
         for future in as_completed(futures):
@@ -60,10 +60,18 @@ def lo():
             if is_valid:
                 successful_proxies.append((proxy, requestTime))
     successful_proxies.sort(key=lambda x: x[1])
+    print("ip响应时间:")
+    for proxy, req_time in successful_proxies:
+        print(f"{req_time}ms")
+        IP_LIST.add(proxy)
 
-def checkIn(user, pwd, proxies):
+def checkIn(user, pwd, proxy):
     req = requests.session()
     req.headers.update(headers)
+    proxies = {
+        'http': f'http://{proxy}',
+        'https': f'http://{proxy}'
+    }
     req.proxies = proxies
     print(user, "开始签到")
     try:
@@ -108,6 +116,7 @@ def checkIn(user, pwd, proxies):
                         return True
     except Exception as e:
         print(f"异常{str(e)}")
+        IP_LIST.discard(proxy)
     return False
 
 def loginhash(data):
@@ -135,13 +144,9 @@ def start():
     keys = list(accounts_list.keys())
     total = len(keys)
     for i, username in enumerate(keys):
-        for proxy, req_time in successful_proxies:
-            proxies = {
-                'http': f'http://{proxy}',
-                'https': f'http://{proxy}'
-            }
+        for proxy in IP_LIST:
             try:
-                if checkIn(username, accounts_list[username], proxies): break
+                if checkIn(username, accounts_list[username], proxy): break
             except Exception as e:
                 pass
         if i < total - 1:
@@ -169,8 +174,5 @@ for duo in ACCOUNTS.split(","):
 IP_LIST.update([ip for ip in IPS.split("\n") if ip.strip()])
 if accounts_list:
     lo()
-    print("ip响应时间:")
-    for proxy, req_time in successful_proxies:
-        print(f"{req_time}ms")
-if successful_proxies:
+if IP_LIST:
     start()
