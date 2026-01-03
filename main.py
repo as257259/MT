@@ -140,7 +140,10 @@ def start():
                 'http': f'http://{proxy}',
                 'https': f'http://{proxy}'
             }
-            if checkIn(username, accounts_list[username], proxies): break
+            try:
+                if checkIn(username, accounts_list[username], proxies): break
+            except Exception as e:
+                pass
         if i < total - 1:
             time.sleep(3)
 
