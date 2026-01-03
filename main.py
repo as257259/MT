@@ -116,7 +116,7 @@ def checkIn(user, pwd, proxy):
                         return True
     except Exception as e:
         print(f"异常{str(e)}")
-        # IP_LIST.discard(proxy)
+        IP_LIST.remove(proxy)
     return False
 
 def loginhash(data):
