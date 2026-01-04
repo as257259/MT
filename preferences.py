@@ -117,11 +117,11 @@ class Preferences:
         try:
             os.system('git config --local user.name "github-actions[bot]" >/dev/null 2>&1')
             os.system('git config --local user.email "github-actions[bot]@users.noreply.github.com" >/dev/null 2>&1')
-            if os.system(f'git add {db_path} >/dev/null 2>&1') == 0:
-                commit_result = os.system('git commit -m "更新" >/dev/null 2>&1')
-                if commit_result == 0:
-                    os.system('git pull --quiet >/dev/null 2>&1')
-                    os.system('git push --quiet >/dev/null 2>&1')
+            os.system(f'git add {db_path} >/dev/null 2>&1')
+            if os.system('git diff --cached --quiet') == 0:
+                os.system('git commit -m "更新" >/dev/null 2>&1')
+                os.system('git pull --quiet origin main >/dev/null 2>&1')
+                os.system('git push --quiet origin main >/dev/null 2>&1')
         except:
             pass
 
