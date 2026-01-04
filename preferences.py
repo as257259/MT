@@ -1,10 +1,7 @@
-from sqlitedict import SqliteDict
-import os
-import atexit
+import os, random, atexit, pytz, base64
 from pathlib import Path
+from sqlitedict import SqliteDict
 from datetime import datetime
-import pytz
-import base64
 
 class Preferences:
     _instance = None
