@@ -88,7 +88,7 @@ def verify(proxy):
 load()
 successful_proxies = []
 with ThreadPoolExecutor(max_workers=20) as executor:
-    futures = {executor.submit(verify, proxy): i for i, proxy in enumerate(ips)}
+    futures = {executor.submit(verify, proxy): i for i, proxy in enumerate(nVerify)}
     for idx, future in enumerate(as_completed(futures), 1):
         proxy, is_valid, requestTime = future.result()
         print(f"{idx}: {"✔" if is_valid else "✖"} {proxy} - {requestTime}ms")
