@@ -1,13 +1,6 @@
 name: A自动签到
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/checkin.yml"
-      - "requirements.txt"
-      - "main.py"
   schedule:
     - cron: '3 0,8,16 * * *'
   workflow_dispatch:
