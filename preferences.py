@@ -46,7 +46,6 @@ class Preferences:
                 raise
         try:
             key = f"{self.getTimes()}_{random.uniform(0, 100)}"
-            logger.info("测试push", key)
             self.put("cs", key)
         except:
             pass
