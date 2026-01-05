@@ -122,6 +122,7 @@ class Preferences:
                 os.system('git commit -m "更新" >/dev/null 2>&1')
                 os.system('git pull --quiet --rebase')
                 os.system('git push --quiet --force-with-lease')
+                print("数据库已更新")
         except:
             pass
 
