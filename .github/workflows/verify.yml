@@ -8,7 +8,7 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 2
     steps:
     - name: 检出仓库
       uses: actions/checkout@v4
@@ -24,5 +24,4 @@ jobs:
         pip install -r requirements.txt
 
     - name: 运行
-      timeout-minutes: 5
       run: python verify.py
