@@ -26,4 +26,5 @@ jobs:
           git init
           git add .
           git -c user.name="GitHub Actions" -c user.email="actions@github.com" commit -m "Sync from upstream with excludes"
-          git push origin main --force
+          git remote add origin https://github.com/${{ github.repository }}.git
+          git push origin main:main --force
