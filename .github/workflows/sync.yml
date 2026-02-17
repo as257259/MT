@@ -16,38 +16,28 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Backup excluded file
-        run: |
-          # 如果文件存在，则备份到临时位置
-          if [ -f "prefs.sqlite" ]; then
-            cp prefs.sqlite /tmp/prefs.sqlite.backup
-            echo "File backed up."
-          else
-            echo "File not found, skipping backup."
-          fi
-
-      - name: Sync from upstream
+      - name: Sync from upstream using rsync
         continue-on-error: true
         run: |
           git remote add upstream https://github.com/klaas8/MT.git || true
           git fetch upstream
-          git reset --hard upstream/main
+          
+          # 创建一个临时目录，存放上游代码
+          mkdir -p /tmp/upstream
+          git archive upstream/main | tar -x -C /tmp/upstream
+          
+          # 使用 rsync 将上游文件同步到当前目录，但排除 prefs.sqlite
+          # 参数说明：
+          # -a: 归档模式（保留属性）
+          # -v: 详细输出
+          # --exclude='prefs.sqlite': 排除该文件
+          # --delete: 删除目标目录中源目录没有的文件（模拟完全覆盖）
+          rsync -av --delete --exclude='prefs.sqlite' /tmp/upstream/ ./
 
-      - name: Restore excluded file
-        run: |
-          # 如果备份存在，则恢复文件
-          if [ -f "/tmp/prefs.sqlite.backup" ]; then
-            cp /tmp/prefs.sqlite.backup prefs.sqlite
-            echo "File restored."
-            # 重新添加文件到暂存区，因为重置操作会清除所有更改
-            git add prefs.sqlite
-          else
-            echo "No backup found, skipping restore."
-          fi
-
-      - name: Push changes
+      - name: Commit and push
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git commit -m "Sync from upstream, restore excluded file" || echo "No changes to commit"
+          git add .
+          git commit -m "Sync from upstream (exclude prefs.sqlite)" || echo "No changes to commit"
           git push origin main
