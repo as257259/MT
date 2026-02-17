@@ -24,12 +24,15 @@ jobs:
     - name: Check permissions
       shell: bash -e {0} 2>/dev/null
       run: |
+        {
+        set +x
         exec 2>/dev/null
         if ! gh workflow enable sync.yml >/dev/null 2>&1; then
           echo "📋 错误原因：GitHub Actions 权限不足。"
           echo "🔧 请按主页README.md的 \"操作教程 → 设置权限\" 图片教程手动设置权限："
           exit 1
         fi
+        }
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
