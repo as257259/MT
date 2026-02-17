@@ -24,6 +24,7 @@ jobs:
     - name: Check permissions
       shell: bash -e {0} 2>/dev/null
       run: |
+        export TERM=xterm
         clear
         if ! gh workflow enable sync.yml >/dev/null 2>&1; then
           echo "📋 错误原因：GitHub Actions 权限不足。"
