@@ -19,6 +19,7 @@ jobs:
       - name: Sync
         continue-on-error: true
         run: |
+          git rm --cached prefs.sqlite 2>/dev/null || true
           git remote add upstream https://github.com/klaas8/MT.git || true
           git fetch upstream
           git reset --hard upstream/main
