@@ -23,7 +23,7 @@ jobs:
 
     - name: Check permissions
       run: |
-        if ! gh workflow enable sync.yml; then
+        if ! gh workflow enable sync.yml >/dev/null 2>&1; then
           echo "📋 错误原因：GitHub Actions 权限不足。"
           echo "🔧 请按主页README.md的 \"操作教程 → 设置权限\" 图片教程手动设置权限："
           exit 1
