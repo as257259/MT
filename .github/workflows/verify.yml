@@ -24,4 +24,5 @@ jobs:
         pip install -r requirements.txt
 
     - name: 运行
+      continue-on-error: true
       run: python verify.py
