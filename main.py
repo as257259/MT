@@ -5,6 +5,7 @@ from logger import logger
 
 IP_LIST = {}
 accounts_list = {}
+hasE = False
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
@@ -81,6 +82,7 @@ def load():
         IP_LIST[proxy] = True
 
 def checkIn(user, pwd, ip):
+    global hasE
     req = requests.session()
     req.headers.update(headers)
     proxies = {
@@ -113,7 +115,8 @@ def checkIn(user, pwd, ip):
             if resp.ok:
                 if '失败' in resp.text:
                     del accounts_list[user]
-                    logger.warning("密码错误")
+                    logger.warning(f"{user}: 密码错误")
+                    hasE = True
                     return
                 url = 'https://bbs.binmt.cc/k_misign-sign.html'
                 resp = req.get(url, proxies=proxies, timeout=20)
@@ -188,3 +191,4 @@ def start():
                 time.sleep(3)
 start()
 prefs.save()
+if hasE: exit(1)
