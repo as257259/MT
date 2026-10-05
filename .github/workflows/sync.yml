@@ -17,11 +17,10 @@ jobs:
           fetch-depth: 0
 
       - name: Sync Push
-        continue-on-error: true
         run: |
           git remote add upstream https://github.com/klaas8/MT.git || true
           git fetch upstream
-          EXCLUDE_FILES=("prefs.sqlite")
+          EXCLUDE_FILES=("prefs.sqlite" "main.py" "main.py.bak")
           for file in "${EXCLUDE_FILES[@]}"; do
             if [ -f "$file" ]; then
               mkdir -p .tmp-exclude
