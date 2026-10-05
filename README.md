@@ -8,7 +8,7 @@
 
 ## ⚠️ 重要提醒（修复版必读）
 
-本仓库与上游的差异如下，**同步上游会覆盖修复代码**：
+本仓库与上游的差异如下：
 
 | 文件 | 状态 | 说明 |
 |---|---|---|
@@ -16,7 +16,6 @@
 | `sync.yml` | 🔒 **已修改** | 排除 `main.py` / `main.py.bak` / `prefs.sqlite` |
 | `main.py.bak` | 📦 备份 | 打补丁前的原始版本 |
 
-**不要直接 Sync fork**，否则 WAF 修复会被冲掉。
 
 ---
 
@@ -84,7 +83,7 @@ document.cookie='acw_sc__v2='+v+...;document.location.reload();
 
 ## 使用方法
 
-1. fork 此项目。
+1. fork 或上传此项目。
 2. 在 Actions 菜单允许 `I understand my workflows, go ahead and enable them` 按钮
 3. 在 GitHub 仓库的 `Settings → Secrets and variables → Actions` 中添加以下环境变量
    - 添加账号：变量名 `ACCOUNTS`
@@ -168,13 +167,10 @@ document.cookie='acw_sc__v2='+v+...;document.location.reload();
 
 ## 🔗 相关链接
 
-[个人主页，点点关注](https://bbs.binmt.cc/home.php?mod=space&uid=154493&do=profile)
+[个人主页，点点关注](https://bbs.binmt.cc/home.php?mod=space&do=profile&mycenter=1)
 
 ###### **最后更新日期：2026年10月06日 00点57分**
 
-## 📈 历史Star数
-
-[![Star History Chart](https://api.star-history.com/svg?repos=klaas8/MT&type=date&legend=top-left)](https://www.star-history.com/#klaas8/mt&type=date&legend=top-left)
 
 ## 许可证
 
