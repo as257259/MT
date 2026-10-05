@@ -6,6 +6,7 @@ from logger import logger
 IP_LIST = {}
 accounts_list = {}
 hasE = False
+sign_fail = 0
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
@@ -13,6 +14,105 @@ headers = {
     'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
     'Connection': 'keep-alive'
 }
+
+ACW_KEY = None
+ACW_B64 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/='
+ACW_ARR = [0xf,0x23,0x1d,0x18,0x21,0x10,0x1,0x26,0xa,0x9,0x13,0x1f,0x28,0x1b,0x16,0x17,0x19,0xd,0x6,0xb,0x27,0x12,0x14,0x8,0xe,0x15,0x20,0x1a,0x2,0x1e,0x7,0x4,0x11,0x5,0x3,0x1c,0x22,0x25,0xc,0x24]
+ACW_FALLBACK = '3000176000856006061501533003690027800375'
+
+
+def acw_decode(s):
+    out = bytearray()
+    bits = 0
+    nb = 0
+    for ch in s:
+        if ch == '=':
+            break
+        v = ACW_B64.find(ch)
+        if v < 0:
+            continue
+        bits = (bits << 6) | v
+        nb += 6
+        while nb >= 8:
+            nb -= 8
+            out.append((bits >> nb) & 0xff)
+    return out.decode('utf-8', 'ignore')
+
+
+def acw_key(html):
+    global ACW_KEY
+    if ACW_KEY:
+        return ACW_KEY
+    m = re.search(r"function a0i\(\)\{var N=\[(.*?)\];", html, re.S)
+    if m:
+        for s in re.findall(r"'([^']*)'", m.group(1)):
+            d = acw_decode(s)
+            if len(d) == 40 and re.match(r'^[0-9a-fA-F]{40}$', d):
+                ACW_KEY = d
+                logger.info('WAF KEY 动态提取成功')
+                return d
+    ACW_KEY = ACW_FALLBACK
+    return ACW_KEY
+
+
+def acw_solve(html):
+    m = re.search(r"arg1='([0-9A-Fa-f]{40})'", html)
+    if not m:
+        return None
+    arg1 = m.group(1)
+    pm = re.search(r"for\(var m=\[([^\]]+)\]", html)
+    arr = None
+    if pm:
+        found = [int(x, 16) for x in re.findall(r'0x([0-9a-fA-F]+)', pm.group(1))]
+        if len(found) == 40:
+            arr = found
+    if arr is None:
+        arr = ACW_ARR
+    q = [None] * 40
+    for x in range(40):
+        for z in range(40):
+            if arr[z] == x + 1:
+                q[z] = arg1[x]
+    if any(v is None for v in q):
+        return None
+    uq = ''.join(q)
+    k = acw_key(html)
+    return ''.join('%x' % (int(uq[i], 16) ^ int(k[i], 16)) for i in range(40))
+
+
+def acw_need(resp):
+    try:
+        t = resp.text
+    except Exception:
+        return False
+    return ('acw_sc__v2' in t) and ("arg1='" in t) and len(t) < 20000
+
+
+def acw_handle(req, resp, again):
+    if not acw_need(resp):
+        return resp
+    v = acw_solve(resp.text)
+    if not v:
+        logger.warning('WAF 挑战识别到但未能解出')
+        return resp
+    req.cookies.set('acw_sc__v2', v, domain='bbs.binmt.cc', path='/')
+    logger.info('WAF 挑战已破解, 重新请求')
+    r = again()
+    r.encoding = r.apparent_encoding
+    return r
+
+
+def acw_get(req, url, **kw):
+    resp = req.get(url, **kw)
+    resp.encoding = resp.apparent_encoding
+    return acw_handle(req, resp, lambda: req.get(url, **kw))
+
+
+def acw_post(req, url, **kw):
+    resp = req.post(url, **kw)
+    resp.encoding = resp.apparent_encoding
+    return acw_handle(req, resp, lambda: req.post(url, **kw))
+
 
 def validate_ip_port(ip, port):
     try:
@@ -81,19 +181,22 @@ def load():
         logger.info(f"{index}: {proxy} - {req_time}ms")
         IP_LIST[proxy] = True
 
-def checkIn(user, pwd, ip):
+def checkIn(user, pwd, ip=None):
     global hasE
     req = requests.session()
     req.headers.update(headers)
-    proxies = {
-        'http': f'http://{ip}',
-        'https': f'http://{ip}'
-    }
-    req.proxies = proxies
+    if ip:
+        proxies = {
+            'http': f'http://{ip}',
+            'https': f'http://{ip}'
+        }
+        req.proxies = proxies
+    else:
+        proxies = None
     logger.info(f"{format_username(user)} 开始签到")
     try:
         url = 'https://bbs.binmt.cc/member.php?mod=logging&action=login&infloat=yes&handlekey=login&inajax=1&ajaxtarget=fwin_content_login'
-        resp = req.get(url, proxies=proxies, timeout=20)
+        resp = acw_get(req, url, proxies=proxies, timeout=20)
         resp.encoding = resp.apparent_encoding
         if resp.ok:
             content = resp.text
@@ -110,7 +213,7 @@ def checkIn(user, pwd, ip):
                 'answer': '',
                 'agreebbrule': ''
             }
-            resp = req.post(url, data=data, proxies=proxies, timeout=20)
+            resp = acw_post(req, url, data=data, proxies=proxies, timeout=20)
             resp.encoding = resp.apparent_encoding
             if resp.ok:
                 if '失败' in resp.text:
@@ -119,23 +222,25 @@ def checkIn(user, pwd, ip):
                     hasE = True
                     return
                 url = 'https://bbs.binmt.cc/k_misign-sign.html'
-                resp = req.get(url, proxies=proxies, timeout=20)
+                resp = acw_get(req, url, proxies=proxies, timeout=20)
                 resp.encoding = resp.apparent_encoding
                 _formhash = formhash(resp.text)
                 code = resp.status_code
                 if resp.ok:
                     url = f'https://bbs.binmt.cc/plugin.php?id=k_misign:sign&operation=qiandao&format=text&formhash={_formhash}'
-                    resp = req.get(url, proxies=proxies, timeout=20)
+                    resp = acw_get(req, url, proxies=proxies, timeout=20)
                     resp.encoding = resp.apparent_encoding
                     if '已签' in resp.text:
                         del accounts_list[user]
                         logger.info(CDATA(resp.text))
                         prefs.put(user, prefs.getTime())
                         return True
-                    logger.warning(CDATA(resp.text))
+                    _msg = CDATA(resp.text)
+                    logger.warning(_msg if _msg else '签到失败, 响应片段: ' + resp.text[:120].replace('\n', ' '))
     except Exception as e:
         logger.warning(f"异常: {str(e)}")
-        IP_LIST[ip] = False
+        if ip:
+            IP_LIST[ip] = False
     return False
 
 def loginhash(data):
@@ -177,18 +282,28 @@ def start():
             logger.info(f"{format_username(username)} 今日已签, 跳过签到")
     if accounts_list:
         load()
-    if IP_LIST:
-        keys = list(accounts_list.keys())
-        total = len(keys)
+    global sign_fail
+    keys = list(accounts_list.keys())
+    total = len(keys)
+    if total:
+        targets = [p for p, s in IP_LIST.items() if s]
+        targets.append(None)
         for i, username in enumerate(keys):
-            for proxy, status in IP_LIST.items():
-                if not status: continue
+            ok = False
+            for proxy in targets:
                 try:
-                    if checkIn(username, accounts_list[username], proxy): break
+                    if checkIn(username, accounts_list[username], proxy):
+                        ok = True
+                        break
                 except:
                     pass
+            if ok:
+                logger.info(f"{format_username(username)} 签到成功")
+            else:
+                sign_fail += 1
+                logger.warning(f"{format_username(username)} 今日签到失败")
             if i < total - 1:
                 time.sleep(3)
 start()
 prefs.save()
-if hasE: exit(1)
+if hasE or sign_fail: exit(1)
