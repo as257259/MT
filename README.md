@@ -44,10 +44,7 @@ document.cookie='acw_sc__v2='+v+...;document.location.reload();
 </script></html>
 ```
 
-原脚本因为解析不到 `formhash`，只能打印空警告后静默失败，导致：
-
-- 签到记录停留在 **2026-09-30**，此后每天都是空跑
-- Workflow 依然显示 **✅ success**（只在密码错误时才 `exit(1)`）
+原脚本因为解析不到 `formhash`，只能打印空警告后静默失败。
 
 ### 解决方案
 
@@ -75,11 +72,11 @@ document.cookie='acw_sc__v2='+v+...;document.location.reload();
 
 ```
 00:47:03  可用ip代理:
-00:47:03  无名之人 开始签到
+00:47:03  开始签到
 00:47:04  WAF KEY 动态提取成功
 00:47:04  WAF 挑战已破解, 重新请求
 00:47:06  已签到              ← 成功
-00:47:06  无名之人 签到成功
+00:47:06  签到成功
 00:47:08  数据库已更新
 ```
 
@@ -87,7 +84,7 @@ document.cookie='acw_sc__v2='+v+...;document.location.reload();
 
 ## 使用方法
 
-1. fork 或者上传此项目
+1. fork 此项目。
 2. 在 Actions 菜单允许 `I understand my workflows, go ahead and enable them` 按钮
 3. 在 GitHub 仓库的 `Settings → Secrets and variables → Actions` 中添加以下环境变量
    - 添加账号：变量名 `ACCOUNTS`
