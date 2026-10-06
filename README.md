@@ -137,6 +137,12 @@ document.cookie='acw_sc__v2='+v+...;document.location.reload();
 
 ## 📋 更新日志
 
+### 2026-10-07 — 存储/推送优化
+- 🗃️ 签到记录键由用户名改为 MD5 摘要，修复中文用户名在 MySQL/SQLite 下的键长度限制崩溃
+- 🚫 WAF 挑战页/代理失败页不再被误记为"已签到"（新增响应排除名单并清理误杀条目）
+- 📲 新增 Server酱微信推送（成功/失败均推送，Secret 未配置时自动跳过）
+- 🧹 清理数据库中停用账户的历史残留记录
+
 ### 2026-10-06 — WAF 修复版
 - 🛡️ 新增阿里云 WAF `acw_sc__v2` 挑战破解（`acw_*` 函数族）
 - 🔑 支持从混淆 JS 动态提取 XOR 密钥，不硬编码
@@ -154,7 +160,7 @@ document.cookie='acw_sc__v2='+v+...;document.location.reload();
 
 [个人主页，点点关注](https://bbs.binmt.cc/home.php?mod=space&do=profile&mycenter=1)
 
-###### **最后更新日期：2026年10月07日 02点11分**
+###### **最后更新日期：2026年10月07日 02点19分**
 
 
 ## 许可证
