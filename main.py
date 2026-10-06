@@ -7,6 +7,8 @@ IP_LIST = {}
 accounts_list = {}
 hasE = False
 sign_fail = 0
+RESULT_OK, RESULT_SKIP, RESULT_FAIL, RESULT_PWDERR = [], [], [], []
+SENDKEY = os.environ.get('SENDKEY', '')
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
@@ -220,6 +222,7 @@ def checkIn(user, pwd, ip=None):
                     del accounts_list[user]
                     logger.warning(f"{user}: 密码错误")
                     hasE = True
+                    RESULT_PWDERR.append(user)
                     return
                 url = 'https://bbs.binmt.cc/k_misign-sign.html'
                 resp = acw_get(req, url, proxies=proxies, timeout=20)
@@ -264,6 +267,37 @@ def CDATA(data):
         return match.group(1).strip('[]')
     return ''
 
+def send_serverchan(title, desp):
+    if not SENDKEY:
+        logger.info('未配置 SENDKEY, 跳过 Server酱推送')
+        return
+    try:
+        r = requests.post(f'https://sctapi.ftqq.com/{SENDKEY}.send',
+                          data={'title': title, 'desp': desp}, timeout=15)
+        j = r.json()
+        if j.get('code') == 0:
+            logger.info('Server酱推送成功')
+        else:
+            logger.warning(f'Server酱推送失败: {j}')
+    except Exception as e:
+        logger.warning(f'Server酱推送异常: {e}')
+
+def push_report():
+    if not (RESULT_OK or RESULT_SKIP or RESULT_FAIL or RESULT_PWDERR):
+        return
+    if hasE or RESULT_FAIL or RESULT_PWDERR:
+        title = f"❌ MT签到异常 成功{len(RESULT_OK)} 失败{len(RESULT_FAIL) + len(RESULT_PWDERR)}"
+    else:
+        title = f"✅ MT签到成功 共{len(RESULT_OK) + len(RESULT_SKIP)}个账户"
+    sections = []
+    for label, lst in (('签到成功', RESULT_OK), ('今日已签', RESULT_SKIP),
+                       ('签到失败', RESULT_FAIL), ('密码错误', RESULT_PWDERR)):
+        if lst:
+            names = ', '.join(format_username(u) for u in lst)
+            sections.append(f"- **{label}**({len(lst)}): {names}")
+    desp = f"**时间**: {time.strftime('%Y-%m-%d %H:%M:%S')}\n\n" + "\n".join(sections)
+    send_serverchan(title, desp)
+
 def start():
     ACCOUNTS = os.environ.get("ACCOUNTS", "")
     if not ACCOUNTS:
@@ -279,6 +313,7 @@ def start():
         if username and password and not YiQianDao:
             accounts_list[username] = password
         elif YiQianDao:
+            RESULT_SKIP.append(username)
             logger.info(f"{format_username(username)} 今日已签, 跳过签到")
     if accounts_list:
         load()
@@ -298,12 +333,15 @@ def start():
                 except:
                     pass
             if ok:
+                RESULT_OK.append(username)
                 logger.info(f"{format_username(username)} 签到成功")
             else:
                 sign_fail += 1
+                RESULT_FAIL.append(username)
                 logger.warning(f"{format_username(username)} 今日签到失败")
             if i < total - 1:
                 time.sleep(3)
 start()
 prefs.save()
+push_report()
 if hasE or sign_fail: exit(1)
