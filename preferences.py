@@ -1,7 +1,10 @@
-import os, random, atexit, pytz, base64
-from pathlib import Path
-from sqlitedict import SqliteDict
+import os
+import random
+import atexit
+import pytz
+import hashlib
 from datetime import datetime
+from sqlitedict import SqliteDict
 from logger import logger
 
 class Preferences:
@@ -32,56 +35,66 @@ class Preferences:
         try:
             os.makedirs(os.path.dirname(db_path), exist_ok=True)
             self.db = SqliteDict(db_path, autocommit=True)
-        except:
+        except Exception:
             try:
                 if os.path.exists(db_path):
                     os.remove(db_path)
                     self.save()
-            except:
+            except Exception:
                 pass
             try:
                 os.makedirs(os.path.dirname(db_path), exist_ok=True)
                 self.db = SqliteDict(db_path, autocommit=True)
-            except:
+            except Exception:
                 raise
         try:
             key = f"{self.getTimes()}_{random.uniform(0, 100)}"
             self.put("cs", key)
-        except:
+        except Exception:
             pass
+
+    def _encode_key(self, key):
+        if key is None:
+            return None
+        return hashlib.md5(key.encode("utf-8")).hexdigest()
 
     def get(self, key, default=None):
         try:
-            return self.d(self.db.get(self.e(key), self.e(default)))
-        except:
+            real_key = self._encode_key(key)
+            if real_key in self.db:
+                return self.db[real_key]
+            return default
+        except Exception:
             return default
 
     def put(self, key, value):
         try:
-            self.db[self.e(key)] = self.e(value)
+            real_key = self._encode_key(key)
+            self.db[real_key] = value
             self.db.commit()
-        except:
+        except Exception:
             pass
 
     def remove(self, key):
         try:
-            if self.e(key) in self.db:
-                del self.db[self.e(key)]
+            real_key = self._encode_key(key)
+            if real_key in self.db:
+                del self.db[real_key]
                 self.db.commit()
-        except:
+        except Exception:
             pass
 
     def clear(self):
         try:
             self.db.clear()
             self.db.commit()
-        except:
+        except Exception:
             pass
 
     def contains(self, key):
         try:
-            return self.e(key) in self.db
-        except:
+            return self._encode_key(key) in self.db
+        except Exception:
             return None
 
     def close(self):
@@ -89,7 +102,7 @@ class Preferences:
             if hasattr(self, 'db'):
                 self.db.close()
             self.__class__._instance = None
-        except:
+        except Exception:
             pass
 
     def get_db_path(self):
@@ -97,21 +110,11 @@ class Preferences:
 
     def getTime(self):
         tz = pytz.timezone('Asia/Shanghai')
-        now = datetime.now(tz)
-        formatted_date = now.strftime('%Y-%m-%d')
-        return formatted_date
+        return datetime.now(tz).strftime('%Y-%m-%d')
 
     def getTimes(self):
         tz = pytz.timezone('Asia/Shanghai')
-        now = datetime.now(tz)
-        formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
-        return formatted_date
-
-    def e(self, text):
-        return base64.b64encode(text.encode()).decode()
-
-    def d(self, encoded_text):
-        return base64.b64decode(encoded_text.encode()).decode()
+        return datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S')
 
     def save(self):
         db_path = self.get_db_path()
@@ -123,7 +126,8 @@ class Preferences:
                 os.system('git pull --quiet --rebase')
                 os.system('git push --quiet --force-with-lease')
                 logger.info("数据库已更新")
-        except:
+        except Exception:
             pass
+
 
 prefs = Preferences()
