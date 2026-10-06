@@ -89,8 +89,8 @@ document.cookie='acw_sc__v2='+v+...;document.location.reload();
    - （可选）微信推送：变量名 `SERVER`
      前往 [Server酱官网](https://sct.ftqq.com/) 微信扫码登录，在「SendKey」页复制以 `SCT` 开头的 Key，添加为名为 `SERVER` 的 Secret
      > 不配置也能正常签到，只是不会收到微信推送
-5. 在 GitHub 仓库的 `Settings → Actions → General` 设置允许推送权限
-6. GitHub Actions 初始手动执行检查是否有配置错误，脚本会自动每天执行，可手动执行
+4. 在 GitHub 仓库的 `Settings → Actions → General` 设置允许推送权限
+5. GitHub Actions 初始手动执行检查是否有配置错误，脚本会自动每天执行，可手动执行
 
 <p align="center">可以按照下面教程设置</p>
 
