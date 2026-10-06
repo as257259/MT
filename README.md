@@ -14,6 +14,7 @@
 - ⏰ 每天自动执行签到（UTC 0:00 / 北京时间 8:00，以及 UTC 12:00 / 20:00）
 - 🛡️ **突破阿里云 WAF `acw_sc__v2` JS 反爬挑战**
 - 🔁 **代理失效时自动直连兜底**
+- 📲 **签到结果推送到微信**（Server酱，可选）
 - 🚨 **签到失败会返回非 0 退出码**（不再出现"假绿"）
 
 ---
@@ -73,7 +74,7 @@ document.cookie='acw_sc__v2='+v+...;document.location.reload();
 
 1. fork 或上传此项目。
 2. 在 Actions 菜单允许 `I understand my workflows, go ahead and enable them` 按钮
-3. 在 GitHub 仓库的 `Settings → Secrets and variables → Actions` 中添加以下环境变量
+3. 在 GitHub 仓库的 `Settings → Secrets and variables → Actions` 中添加以下 Secrets
    - 添加账号：变量名 `ACCOUNTS`
      **单账号格式：**
      ```
@@ -85,8 +86,11 @@ document.cookie='acw_sc__v2='+v+...;document.location.reload();
      user2:pass2
      user3:pass3
      ```
-4. 在 GitHub 仓库的 `Settings → Actions → General` 设置允许推送权限
-5. GitHub Actions 初始手动执行检查是否有配置错误，脚本会自动每天执行，可手动执行
+   - （可选）微信推送：变量名 `SERVER`
+     前往 [Server酱官网](https://sct.ftqq.com/) 微信扫码登录，在「SendKey」页复制以 `SCT` 开头的 Key，添加为名为 `SERVER` 的 Secret
+     > 不配置也能正常签到，只是不会收到微信推送
+5. 在 GitHub 仓库的 `Settings → Actions → General` 设置允许推送权限
+6. GitHub Actions 初始手动执行检查是否有配置错误，脚本会自动每天执行，可手动执行
 
 <p align="center">可以按照下面教程设置</p>
 
