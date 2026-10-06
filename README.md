@@ -132,7 +132,6 @@ document.cookie='acw_sc__v2='+v+...;document.location.reload();
 2. 首次运行 GitHub Actions 需要授权
 3. 脚本执行时间为 UTC 0:00（香港时间 8:00）
 4. **如果 Workflow 显示红色 ❌，说明签到确实失败了**（这是修复后的特性，以前失败也会显示绿色）
-5. 免费代理池失效很常见，脚本会自动回退直连；直连不可用时才会失败
 
 ---
 
@@ -144,8 +143,6 @@ document.cookie='acw_sc__v2='+v+...;document.location.reload();
 - 🔁 `checkIn()` 支持直连模式，代理全挂时自动兜底
 - 🚨 签到失败返回非 0 退出码，杜绝"假绿"
 - 📝 失败日志改为输出响应片段，便于排查
-- 🔒 `sync.yml` 排除 `main.py`，防止同步覆盖修复
-- 📦 原版备份至 `main.py.bak`
 
 ### 上游版本
 - 2026-02-17 更新 `checkin.yml`
