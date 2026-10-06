@@ -8,7 +8,7 @@ accounts_list = {}
 hasE = False
 sign_fail = 0
 RESULT_OK, RESULT_SKIP, RESULT_FAIL, RESULT_PWDERR = [], [], [], []
-SENDKEY = os.environ.get('SENDKEY', '')
+SERVER = os.environ.get('SERVER', '')
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
@@ -268,11 +268,11 @@ def CDATA(data):
     return ''
 
 def send_serverchan(title, desp):
-    if not SENDKEY:
-        logger.info('未配置 SENDKEY, 跳过 Server酱推送')
+    if not SERVER:
+        logger.info('未配置 SERVER, 跳过 Server酱推送')
         return
     try:
-        r = requests.post(f'https://sctapi.ftqq.com/{SENDKEY}.send',
+        r = requests.post(f'https://sctapi.ftqq.com/{SERVER}.send',
                           data={'title': title, 'desp': desp}, timeout=15)
         j = r.json()
         if j.get('code') == 0:
