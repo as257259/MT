@@ -38,4 +38,5 @@ jobs:
     - name: 运行签到
       env:
         ACCOUNTS: ${{ secrets.ACCOUNTS }}
+        SENDKEY: ${{ secrets.SERVERCHAN_SENDKEY }}
       run: python main.py
