@@ -134,7 +134,7 @@ document.cookie='acw_sc__v2='+v+...;document.location.reload();
 
 1. 确保账户密码正确
 2. 首次运行 GitHub Actions 需要授权
-3. 脚本执行时间为 UTC 0:00（香港时间 8:00）
+3. 脚本执行时间为 UTC 0:00（北京时间 8:00）
 4. **如果 Workflow 显示红色 ❌，说明签到确实失败了**（这是修复后的特性，以前失败也会显示绿色）
 
 ---
