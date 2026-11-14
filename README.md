@@ -2,7 +2,7 @@
 
 这是一个用于自动签到 [MT论坛](https://bbs.binmt.cc) 的脚本，配合 GitHub Actions 实现自动定时执行。
 
-> 本项目 fork 自 [klaas8/MT](https://github.com/klaas8/MT)，并针对 **2025-10 论坛上线阿里云 WAF 后签到失效**的问题做了修复。
+> 本项目 fork 自 [klaas8/MT](https://github.com/klaas8/MT)，并针对 **2026-10 论坛上线阿里云 WAF 后签到失效**的问题做了修复。
 
 ---
 
@@ -23,7 +23,7 @@
 
 ### 问题背景
 
-2025 年 9 月底，MT 论坛接入阿里云 ESA WAF。此后服务器不再直接返回登录页，而是返回一段**混淆 JavaScript 挑战页**：
+2026 年 9 月底，MT 论坛接入阿里云 ESA WAF。此后服务器不再直接返回登录页，而是返回一段**混淆 JavaScript 挑战页**：
 
 ```html
 <html><script>var arg1='E1882740088B4C542FBF7BF375E4CFCECAA898A6';
